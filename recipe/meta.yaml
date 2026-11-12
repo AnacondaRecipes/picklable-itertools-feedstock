@@ -8,10 +8,14 @@ package:
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: faecb7709d2684f3d2d06032e06ed0670cacc59cc074adccd666291c848fe638
+  patches:
+    # pkg_resources is no longer shipped by setuptools in the current channels;
+    # the package only used it to compute __version__.
+    - 0001-replace-pkg_resources-with-importlib-metadata.patch
 
 build:
   number: 2
-  script: "{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv "
+  script: "{{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed -vvv "
 
 requirements:
   host:
@@ -21,18 +25,27 @@ requirements:
     - six
   run:
     - python
-    - setuptools
     - six
 
 test:
+  requires:
+    - pip
   imports:
     - picklable_itertools
+  commands:
+    - pip check
 
 about:
   home: https://github.com/mila-udem/picklable-itertools
-  license: MIT License
+  license: MIT
   license_family: MIT
+  license_file: LICENSE
   summary: itertools, but picklable
+  description: |
+    Picklable variants of the itertools building blocks, so that iterators can be
+    serialized and sent to worker processes.
+  doc_url: https://github.com/mila-udem/picklable-itertools#readme
+  dev_url: https://github.com/mila-udem/picklable-itertools
 
 extra:
   recipe-maintainers:
